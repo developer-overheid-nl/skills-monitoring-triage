@@ -203,6 +203,26 @@ If during triage you discovered:
 
 Memory updates are part of the run, not optional cleanup.
 
+### Push the memory back to this repo
+
+The operational memory lives in two places: the local memory directory the skill reads during a run, and `memory/` in `developer-overheid-nl/skills-monitoring-triage`, which is what the cloud routine clones. **A local memory edit that is not pushed here is invisible to the next cloud run**, so finish every run that touched memory with this sync:
+
+```bash
+git clone https://github.com/developer-overheid-nl/skills-monitoring-triage /tmp/mt-sync
+LOCAL_MEM="$HOME/.claude/projects/-Users-anneschuth-overheid-skills/memory"
+for f in /tmp/mt-sync/memory/*.md; do
+    name="$(basename "$f")"
+    [ "$name" = "README.md" ] && continue
+    diff -q "$f" "$LOCAL_MEM/$name" >/dev/null 2>&1 || echo "DRIFT $name"
+done
+```
+
+Copy over every file that reports DRIFT, add any genuinely new operational memory, update `memory/README.md` when you add a file, and commit.
+
+**Only operational triage knowledge belongs here.** This repo is **public**. The local memory directory also holds personal memory (`user_role.md`, `feedback_*.md`) and the `MEMORY.md` index; never copy those. Sync only the `project_*.md` files that a triage run actually uses, and check the contents of anything new before pushing it.
+
+Do the same in the other direction when this repo's `SKILL.md` is ahead of the local copy: the local skill is a symlink into `~/dotfiles`, so update `~/dotfiles/claude/skills/monitoring-triage/SKILL.md` and commit there.
+
 ## Clean run (nothing to do)
 
 A run with zero open monitoring issues, zero `autorelease: pending` PRs, and a healthy marketplace is the common case, not an error. When that happens, skip the per-bucket summary and instead: confirm the latest `monitoring-content.yml` and `monitoring-links.yml` runs went green in each content repo (`gh run list --workflow monitoring-content.yml --limit 1`), confirm marketplace `check-versions.yml` is green, and report a one-line clean summary. Do not invent work.
