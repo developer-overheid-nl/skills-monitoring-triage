@@ -1,7 +1,8 @@
 ---
 name: Logius repo beheer patterns
-description: Logius repos undergo frequent beheer changes (sections/ moves, pubdomain, URL normalization, license) that trigger monitoring but need no skill updates
+description: Logius repos undergo frequent beheer changes (sections/ moves, pubdomain, URL normalization, license) — triggers monitoring but no skill updates needed
 type: project
+originSessionId: 738612db-8826-4a7f-93c7-5b6b0c9d9bb0
 ---
 Since 2026-03-25, Logius standaarden repos regularly undergo beheer changes that trigger monitoring issues but have no impact on skill content:
 

@@ -2,11 +2,12 @@
 name: Release-please PR unsticking workflow
 description: How to unblock release-please PRs that have no CI checks and missing platform files
 type: project
+originSessionId: 3a2ac144-b21f-4e26-9f65-8e20a40b564d
 ---
 Release-please PRs in skills-geo, skills-internet en skills-standaarden komen vaak vast te zitten omdat:
 
-1. **Geen CI checks**: release-please pusht via GITHUB_TOKEN dat geen workflows triggert
-2. **Platform files niet geregenereerd**: `pyproject.toml` wordt door release-please gebumpt, maar `.claude-plugin/plugin.json` en `.cursor-plugin/plugin.json` niet, dus `validate` faalt dan
+1. **Geen CI checks** — release-please pusht via GITHUB_TOKEN dat geen workflows triggert
+2. **Platform files niet geregenereerd** — `pyproject.toml` wordt door release-please gebumpt, maar `.claude-plugin/plugin.json` en `.cursor-plugin/plugin.json` niet — `validate` faalt dan
 
 **Why:** Dit is een terugkerend patroon na elke release. Ook de `chore: bump deps` workflow kent dezelfde issue (CI niet getriggerd voor dependabot-merge commits binnen branches).
 
