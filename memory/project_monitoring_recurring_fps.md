@@ -63,6 +63,12 @@ These URLs trigger monitoring regularly but the skills only use them as referenc
 | github.com/logius-standaarden/*, "Voeg archiefbericht toe aan README" | diverse | Logius archiveert repos in sweeps; de monitoring meldt dan "Repository is gearchiveerd" in de issue-body | **Geen FP.** Markeer de repo als gearchiveerd in de SKILL.md repo-tabel en conflicts.md. Conventie in deze repo: inline `— **gearchiveerd** <maand jaar>` in de beschrijvingskolom, geen emoji en geen aparte tabel (zie ls-api, ls-bomos). Confirmed 2026-08-31 (#790, #792, #793, #794 → PR #801: e-procurement, basisfactuur-rijk, basisorder-rijk, logboek-dataverwerkingen-demo). |
 | "Beheer: zet spellingscheck/spellcheck aan" sweep | skills-standaarden (meerdere Logius-repos) | Logius zet spellcheck repo-voor-repo aan; komt synchroon binnen over meerdere repos (authorization-decision-log #25, API-Design-Rules #344, publicatie organisation-config #84 → raakt ook organisation-config.mjs draft_doc) — zelfde sweep-patroon als de NLgov-notatie ronde | Pure beheer, close zonder skill-change. Confirmed 2026-07-19. |
 
+## Wanneer de dagelijkse runs echt draaien
+
+De crons staan op 06:00 UTC (links) en 07:00 UTC (content), maar GitHub voert scheduled workflows met vertraging uit. Gemeten over 2026-08-30 t/m 09-03 in alle drie de content-repos: links landt rond **10:29-11:15 UTC**, content rond **11:48-12:16 UTC** (uitschieters tot 14:43). Dat is structureel 4 tot 7 uur na de geplande tijd.
+
+**Gevolg voor triage:** een run vóór ~12:00 UTC ziet de resultaten van *gisteren*, niet van vandaag. Dat is geen storing en geen reden om te gaan graven. Wil je de verse signalen van vandaag, draai dan na ~12:30 UTC, of trigger handmatig met `gh workflow run monitoring-content.yml --repo developer-overheid-nl/<repo>`. Controleer bij twijfel het `event`-veld (`gh run list --json createdAt,event`): staat er `schedule`, dan is het gewoon de vertraagde cron.
+
 ## Broken-link false positives (monitoring-links.yml / lychee)
 
 These come from the links workflow, not the content workflow, and carry the `monitoring,broken-link` label.
