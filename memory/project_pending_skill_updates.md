@@ -72,10 +72,12 @@ Digimelding-Koppelvlakspecificatie commit e418b72 (#14) legt vast dat alle tijds
 
 Een betrokkene bij het Forum Standaardisatie meldt dat het Forum Standaardisatie nu een beslisboom heeft met een standaardenoverzicht, en dat het MOZa-team met een quick scan een aantal standaarden vond die in de skills ontbreken. Nog niet uitgezocht welke. Vraagt om een gap-analyse van de Forum-beslisboom tegen de bestaande skills (ls, inet, geo, nerds).
 
-### ls-dk / ls-iam: OIN-Stelsel teruggezet naar v2.2.2 — DONE 2026-09-17
+### ls-dk / ls-iam / ls-api: DEF-versies gelijkgetrokken — DONE 2026-09-17
 
-Logius wees op 2026-09-15 de laatste versie van het OIN-Stelsel op gitdocumentatie terug van v3.0.1 naar **v2.2.2** (publicatie-commit dc90a94, "Verwijs laatste versie OIN naar 2.2.2"). De skills stonden nog op v3.0.0. Bijgewerkt in skills-standaarden#845: ls-dk/SKILL.md versietabel, plus ls-dk/conflicts.md en ls-iam/conflicts.md (versie, datumregel en toelichting; de discrepantie met tag `2.2.0` is geen "tag achter" meer).
+Logius wees op 2026-09-15 de *latest*-verwijzing van het OIN-Stelsel terug van v3.0.1 naar **v2.2.2** (publicatie-commit dc90a94). Niet omdat een release werd teruggedraaid, maar omdat de verwijzing naar een **versie ter vaststelling** wees: "In plaats van dat we verwijzen naar de versie ter vaststelling verwijzen we nu weer naar de laatste definitieve versie." Zowel v3.0.0 als v3.0.1 hebben `specStatus: VV`, geen DEF. De skills presenteerden v3.0.0 sinds maart 2026 dus ten onrechte als vastgesteld (PR #845, gecorrigeerd in PR #847).
 
-**Les:** een publicatie kan ook *terug* in versie gaan. De oude 3.0.0- en 3.0.1-paden geven nog steeds 200, dus wie alleen het oude versiepad controleert ziet niets. De redirect op het domeinpad (`/publicatie/dk/oin/`) is de bron van waarheid voor "laatste versie". Controleer bij een OIN-wijziging beide conflicts.md-bestanden: ls-iam noemt dezelfde versie op vier plekken.
+Een audit van alle 30 gitdocumentatie-verwijzingen (PR #847) vond nog drie verouderde versies: ADR v2.2.0→v2.2.1 (ls-api), REST-API v4.0.0→v4.0.1 en Beveiligingsstandaarden v3.0.0→v3.0.1 (ls-dk), plus een ls-iam/SKILL.md die bij #845 was gemist. Alle overige rijen kloppen en staan op DEF.
 
-Inhoudelijk gevolg: de Dezi-stelsel prefixen die v3.0.0 introduceerde staan niet in de nu geldende v2.2.2. Als Logius v3.x weer vooruit zet, moet dat terug.
+**Structurele fix:** `scripts/check_def_versions.py` + `monitoring-def-versions.yml` (wekelijks, maandag 07:30 UTC) controleren nu elke versieclaim op zowel versienummer als `specStatus`. Eerste live run: alle 30 komen overeen. Bij afwijking komt er een issue met label `def-versie`.
+
+**Les:** een hoger versienummer op gitdocumentatie betekent niet dat het vastgesteld is. De VV-paden blijven gewoon 200 geven, dus alleen `specStatus` op het versiepad zelf geeft uitsluitsel. Controleer bij een versiewijziging álle bestanden die de versie noemen; ls-iam had hem op vijf plekken staan.
