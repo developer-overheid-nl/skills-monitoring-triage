@@ -71,3 +71,11 @@ Digimelding-Koppelvlakspecificatie commit e418b72 (#14) legt vast dat alle tijds
 ### Forum beslisboom: ontbrekende standaarden — OPEN, gemeld 2026-08-31
 
 Een betrokkene bij het Forum Standaardisatie meldt dat het Forum Standaardisatie nu een beslisboom heeft met een standaardenoverzicht, en dat het MOZa-team met een quick scan een aantal standaarden vond die in de skills ontbreken. Nog niet uitgezocht welke. Vraagt om een gap-analyse van de Forum-beslisboom tegen de bestaande skills (ls, inet, geo, nerds).
+
+### ls-dk / ls-iam: OIN-Stelsel teruggezet naar v2.2.2 — DONE 2026-09-17
+
+Logius wees op 2026-09-15 de laatste versie van het OIN-Stelsel op gitdocumentatie terug van v3.0.1 naar **v2.2.2** (publicatie-commit dc90a94, "Verwijs laatste versie OIN naar 2.2.2"). De skills stonden nog op v3.0.0. Bijgewerkt in skills-standaarden#845: ls-dk/SKILL.md versietabel, plus ls-dk/conflicts.md en ls-iam/conflicts.md (versie, datumregel en toelichting; de discrepantie met tag `2.2.0` is geen "tag achter" meer).
+
+**Les:** een publicatie kan ook *terug* in versie gaan. De oude 3.0.0- en 3.0.1-paden geven nog steeds 200, dus wie alleen het oude versiepad controleert ziet niets. De redirect op het domeinpad (`/publicatie/dk/oin/`) is de bron van waarheid voor "laatste versie". Controleer bij een OIN-wijziging beide conflicts.md-bestanden: ls-iam noemt dezelfde versie op vier plekken.
+
+Inhoudelijk gevolg: de Dezi-stelsel prefixen die v3.0.0 introduceerde staan niet in de nu geldende v2.2.2. Als Logius v3.x weer vooruit zet, moet dat terug.
