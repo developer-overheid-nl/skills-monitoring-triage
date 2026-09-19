@@ -211,7 +211,8 @@ The operational memory lives in two places: the local memory directory the skill
 
 ```bash
 git clone https://github.com/developer-overheid-nl/skills-monitoring-triage /tmp/mt-sync
-LOCAL_MEM="$HOME/.claude/projects/-<workspace>-overheid-skills/memory"
+# Claude Code leidt de projectmap af uit het workspace-pad: slashes worden streepjes.
+LOCAL_MEM="$HOME/.claude/projects/$(echo "$WORKSPACE" | sed 's|/|-|g')/memory"
 for f in /tmp/mt-sync/memory/*.md; do
     name="$(basename "$f")"
     [ "$name" = "README.md" ] && continue
