@@ -81,3 +81,11 @@ Een audit van alle 30 gitdocumentatie-verwijzingen (PR #847) vond nog drie verou
 **Structurele fix:** `scripts/check_def_versions.py` + `monitoring-def-versions.yml` (wekelijks, maandag 07:30 UTC) controleren nu elke versieclaim op zowel versienummer als `specStatus`. Eerste live run: alle 30 komen overeen. Bij afwijking komt er een issue met label `def-versie`.
 
 **Les:** een hoger versienummer op gitdocumentatie betekent niet dat het vastgesteld is. De VV-paden blijven gewoon 200 geven, dus alleen `specStatus` op het versiepad zelf geeft uitsluitsel. Controleer bij een versiewijziging álle bestanden die de versie noemen; ls-iam had hem op vijf plekken staan.
+
+### ls-logboek: MOZa als praktijkvoorbeeld — DONE 2026-09-24, buiten triage om
+
+Een `feat:`-commit (e3e1f30, PR #272) voegde MijnOverheid Zakelijk (MinBZK) toe aan `ls-logboek/reference.md`: de open-source Java/Kotlin library met een declaratieve `@Logboek`-annotatie voor Jakarta, een ClickHouse-configuratievoorbeeld, geleerde lessen uit ADR-0007/ADR-0010 en een vergelijkingstabel Python versus Java/Kotlin. Meegekomen in release v0.7.0.
+
+**Let op voor de triage:** dit landde zonder monitoring-issue, dus er wordt ook buiten deze sessies aan de repos gewerkt. Een `git pull` kan dus nieuwe skill-content opleveren, en een release-PR kan een `feat:` bevatten die je niet zelf hebt gemaakt (vandaar de minor bump 0.6.7 → 0.7.0 in plaats van een patch). Lees de changelog van een release-PR dus echt, in plaats van aan te nemen dat die alleen je eigen fixes bevat.
+
+Dit lost de openstaande gap-analyse van de Forum-beslisboom **niet** op; die blijft open.
