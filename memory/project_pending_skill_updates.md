@@ -89,3 +89,11 @@ Een `feat:`-commit (e3e1f30, PR #272) voegde MijnOverheid Zakelijk (MinBZK) toe 
 **Let op voor de triage:** dit landde zonder monitoring-issue, dus er wordt ook buiten deze sessies aan de repos gewerkt. Een `git pull` kan dus nieuwe skill-content opleveren, en een release-PR kan een `feat:` bevatten die je niet zelf hebt gemaakt (vandaar de minor bump 0.6.7 → 0.7.0 in plaats van een patch). Lees de changelog van een release-PR dus echt, in plaats van aan te nemen dat die alleen je eigen fixes bevat.
 
 Dit lost de openstaande gap-analyse van de Forum-beslisboom **niet** op; die blijft open.
+
+### geo-api: ogc-checker Docker-gebruik — DONE 2026-09-25
+
+Geonovum voegde een Dockerfile toe aan ogc-checker (commit ff69a53, upstream #857): één image voor zowel de CLI als de web-UI, met een entrypoint dat op het eerste argument dispatcht (`serve`/`web` start de webserver, al het andere gaat naar de CLI). Verwerkt als subsectie *Via Docker* in geo-api/SKILL.md (PR skills-geo#338, release v0.4.0): build-commando, CLI met gemount bestand en met URL, web-UI op poort 8080 (aanpasbaar via `PORT`), plus de exit codes.
+
+Relevant omdat de skill waarschuwt dat v1.3.0+ Node 22 of hoger vereist; via Docker vervalt die eis. De versie-pin bleef op v1.3.1, want er kwam geen nieuwe tag.
+
+**Let op bij overnemen:** de Docker-vorm gebruikt het `validate`-subcommando met `--input`, terwijl de `npx`-vorm in dezelfde sectie zonder subcommando werkt. Overgenomen uit de upstream README en `docker-entrypoint.mjs`, niet zelf geconstrueerd.
