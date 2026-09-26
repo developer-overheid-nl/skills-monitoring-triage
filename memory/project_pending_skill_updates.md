@@ -97,3 +97,17 @@ Geonovum voegde een Dockerfile toe aan ogc-checker (commit ff69a53, upstream #85
 Relevant omdat de skill waarschuwt dat v1.3.0+ Node 22 of hoger vereist; via Docker vervalt die eis. De versie-pin bleef op v1.3.1, want er kwam geen nieuwe tag.
 
 **Let op bij overnemen:** de Docker-vorm gebruikt het `validate`-subcommando met `--input`, terwijl de `npx`-vorm in dezelfde sectie zonder subcommando werkt. Overgenomen uit de upstream README en `docker-entrypoint.mjs`, niet zelf geconstrueerd.
+
+### ls-api: regel `/core/always-return-objects` — OPEN, wacht op DEF-publicatie (gezien 2026-09-26)
+
+Commit 5bcb823 (upstream #354) voegt op `develop` een nieuwe ontwerpregel toe: een JSON- of XML-response MOET op het hoogste niveau een object zijn, ongeacht de HTTP-methode. Bij een collectie-resource moet dat object een veld bevatten (sleutel MAG `items` heten) met de items als array. Rationale: metadata (paginering, linked-data-velden) kan anders alleen via HTTP-headers mee, en later van array naar object gaan is een breaking change. Spectral-regel `nlgov:always-return-objects`, severity error, plus testcases onder `linter/testcases/return-objects/`.
+
+**Nog niet opgenomen in de skill.** De commit staat alleen op `develop` (de default branch van die repo); `main` divergeert en de vastgestelde versie op gitdocumentatie is v2.2.1 (DEF), die de regel niet bevat. Ook `media/linter.yaml` op `main` heeft de Spectral-regel niet. Opnemen zou een werkversie-regel als verplicht presenteren, terwijl ls-api juist de vastgestelde regels documenteert.
+
+**Wat te doen zodra er een DEF-publicatie met deze regel is:** voeg onder *Technische Regels* een subsectie *Responsestructuur* toe (top-level object verplicht, `items`-array bij collecties, korte rationale, JSON-voorbeeld uit de spec), werk de versietabel bij, en vul de lijst *Belangrijke regels* aan met `nlgov:always-return-objects`.
+
+### ls-api: Spectral-regellijst loopt achter — OPEN, gezien 2026-09-26
+
+`ls-api/SKILL.md` regel 275 zegt "22 regels totaal, 11 extra t.o.v. DON", maar `media/linter.yaml` op upstream `main` bevat **29** regels (geteld met een yaml-parser; een grep op indentatie telt te laag, let daarop). De opgesomde regels kloppen wel, de lijst is alleen niet compleet en het aantal niet meer actueel.
+
+Niet meegenomen in de ronde van 09-26 omdat dit een eigen vergelijking verdient: welke van de 29 staan er al, welke ontbreken, en welke daarvan zijn DON-regels versus alleen-GitHub. Aanpak: `uv run --with pyyaml python -c "import yaml; print(sorted(yaml.safe_load(open('linter.yaml'))['rules']))"` op de upstream `main`-versie, dat afzetten tegen de twee lijstjes in de skill, en het totaal plus de "extra t.o.v. DON"-telling herberekenen.
