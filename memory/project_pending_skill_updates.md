@@ -111,3 +111,11 @@ Commit 5bcb823 (upstream #354) voegt op `develop` een nieuwe ontwerpregel toe: e
 `ls-api/SKILL.md` regel 275 zegt "22 regels totaal, 11 extra t.o.v. DON", maar `media/linter.yaml` op upstream `main` bevat **29** regels (geteld met een yaml-parser; een grep op indentatie telt te laag, let daarop). De opgesomde regels kloppen wel, de lijst is alleen niet compleet en het aantal niet meer actueel.
 
 Niet meegenomen in de ronde van 09-26 omdat dit een eigen vergelijking verdient: welke van de 29 staan er al, welke ontbreken, en welke daarvan zijn DON-regels versus alleen-GitHub. Aanpak: `uv run --with pyyaml python -c "import yaml; print(sorted(yaml.safe_load(open('linter.yaml'))['rules']))"` op de upstream `main`-versie, dat afzetten tegen de twee lijstjes in de skill, en het totaal plus de "extra t.o.v. DON"-telling herberekenen.
+
+### skills-geo: geonovum_site uit de content-monitoring — DONE 2026-09-28
+
+De drie `geonovum.nl`-pagina's waren de dominante ruisbron in skills-geo: 30 van de laatste 60 monitoring-issues, over elf losse dagen sinds juni, elke keer met dezelfde hash. De memory noemde het uitsluiten al als structurele fix; nu doorgevoerd in PR skills-geo#345 (release v0.4.1).
+
+Aanpak die de moeite van onthouden waard is: `is_excluded()` wordt gebruikt in de gedeelde extractie die **zowel** de lychee-lijst als het content-manifest voedt, dus daar uitsluiten zou ook de link-check uitschakelen. In plaats daarvan een aparte `CONTENT_MONITORING_EXCLUDE_PATTERNS` + `is_content_monitoring_excluded()`, alleen toegepast in `output_json()`. Zo blijft een dode link op die pagina's wél opvallen. Zes tests dekken het af, inclusief een negatieve test dat andere geonovum.nl-subpagina's nog gemonitord worden.
+
+`extract_urls.py` verschilt per repo, dus dit is niet naar skills-internet of skills-standaarden gekopieerd.
