@@ -98,7 +98,7 @@ Relevant omdat de skill waarschuwt dat v1.3.0+ Node 22 of hoger vereist; via Doc
 
 **Let op bij overnemen:** de Docker-vorm gebruikt het `validate`-subcommando met `--input`, terwijl de `npx`-vorm in dezelfde sectie zonder subcommando werkt. Overgenomen uit de upstream README en `docker-entrypoint.mjs`, niet zelf geconstrueerd.
 
-### ls-api: regel `/core/always-return-objects` — OPEN, wacht op DEF-publicatie (gezien 2026-09-26)
+### ls-api: twee nieuwe ADR-regels op develop — OPEN, wacht op DEF-publicatie (gezien 2026-09-26, uitgebreid 2026-09-30)
 
 Commit 5bcb823 (upstream #354) voegt op `develop` een nieuwe ontwerpregel toe: een JSON- of XML-response MOET op het hoogste niveau een object zijn, ongeacht de HTTP-methode. Bij een collectie-resource moet dat object een veld bevatten (sleutel MAG `items` heten) met de items als array. Rationale: metadata (paginering, linked-data-velden) kan anders alleen via HTTP-headers mee, en later van array naar object gaan is een breaking change. Spectral-regel `nlgov:always-return-objects`, severity error, plus testcases onder `linter/testcases/return-objects/`.
 
@@ -119,3 +119,11 @@ De drie `geonovum.nl`-pagina's waren de dominante ruisbron in skills-geo: 30 van
 Aanpak die de moeite van onthouden waard is: `is_excluded()` wordt gebruikt in de gedeelde extractie die **zowel** de lychee-lijst als het content-manifest voedt, dus daar uitsluiten zou ook de link-check uitschakelen. In plaats daarvan een aparte `CONTENT_MONITORING_EXCLUDE_PATTERNS` + `is_content_monitoring_excluded()`, alleen toegepast in `output_json()`. Zo blijft een dode link op die pagina's wél opvallen. Zes tests dekken het af, inclusief een negatieve test dat andere geonovum.nl-subpagina's nog gemonitord worden.
 
 `extract_urls.py` verschilt per repo, dus dit is niet naar skills-internet of skills-standaarden gekopieerd.
+
+**Update 2026-09-30:** er staat nu een tweede regel op `develop`: commit 535eff0 (upstream #333) "Voeg regel toe voor informatie over talen" (#860/#861). Zelfde situatie, branches nog steeds gedivergeerd (26 ahead / 7 behind) en DEF staat nog op v2.2.1. Verwerk beide regels in één PR zodra er een DEF-publicatie is, dan hoeft de sectie *Technische Regels* maar één keer open.
+
+### geo-api: ogc-checker Docker naar twee build targets — DONE 2026-09-30
+
+De op 09-25 gedocumenteerde Docker-aanroep was op 09-30 al achterhaald. Upstream #870 (release v1.3.2) verving het entrypoint door twee build targets: `cli` (default, distroless non-root Node) en `web` (statische bestanden via Caddy). `docker run ... serve` werkt niet meer. Bijgewerkt in PR skills-geo#349 (release v0.4.2), inclusief stdin-voorbeeld en een werkende PORT-override (`-e PORT=9090 -p 9090:9090`).
+
+**Les:** deze repo release ongeveer maandelijks en verandert daarbij zijn eigen aanroep-interface. Controleer bij elke nieuwe tag of de gedocumenteerde commando's nog kloppen, niet alleen of het versienummer nog actueel is. Een versie-pin die klopt zegt niets over of de voorbeelden nog werken.
