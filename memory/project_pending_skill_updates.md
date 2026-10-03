@@ -127,3 +127,12 @@ Aanpak die de moeite van onthouden waard is: `is_excluded()` wordt gebruikt in d
 De op 09-25 gedocumenteerde Docker-aanroep was op 09-30 al achterhaald. Upstream #870 (release v1.3.2) verving het entrypoint door twee build targets: `cli` (default, distroless non-root Node) en `web` (statische bestanden via Caddy). `docker run ... serve` werkt niet meer. Bijgewerkt in PR skills-geo#349 (release v0.4.2), inclusief stdin-voorbeeld en een werkende PORT-override (`-e PORT=9090 -p 9090:9090`).
 
 **Les:** deze repo release ongeveer maandelijks en verandert daarbij zijn eigen aanroep-interface. Controleer bij elke nieuwe tag of de gedocumenteerde commando's nog kloppen, niet alleen of het versienummer nog actueel is. Een versie-pin die klopt zegt niets over of de voorbeelden nog werken.
+
+**Update 2026-10-03:** ADR v2.2.2 is gepubliceerd (DEF), maar het is een **patch release**: de regelset is identiek aan 2.2.1, gecontroleerd op alle 23 `/core/`-regel-IDs. Geen van beide regels zit erin, dus dit punt blijft open. Versietabel bijgewerkt naar v2.2.2 in skills-standaarden#882 (release v0.8.1).
+
+Let op bij de volgende ronde: `develop` is sinds de merge-van-main `behind_by: 0`, wat eruitziet alsof de regels vastgesteld zijn. Dat is niet zo. Controleer altijd de DEF-publicatie zelf:
+
+```bash
+curl -sL https://gitdocumentatie.logius.nl/publicatie/api/adr/ | grep -oE 'canonical" href="\./[^"]+"'
+curl -sL https://gitdocumentatie.logius.nl/publicatie/api/adr/<versie>/ | grep -c 'always-return-objects'
+```
