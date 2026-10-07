@@ -1,6 +1,6 @@
 ---
 name: monitoring-triage
-description: "Triage and fix monitoring issues across the developer-overheid-nl plugin repos (skills-geo, skills-internet, skills-standaarden, skills-marketplace). Use when the user mentions 'monitoring issues', 'monitoring', 'false positives', 'content monitoring', 'monitoring triage', 'monitoring fixen'."
+description: "Triage and fix monitoring issues across the plugin repos (skills-geo, skills-internet, skills-standaarden, skills-marketplace, zad-actions). Use when the user mentions 'monitoring issues', 'monitoring', 'false positives', 'content monitoring', 'monitoring triage', 'monitoring fixen'."
 allowed-tools:
   - Bash(gh issue *)
   - Bash(gh pr *)
@@ -35,7 +35,7 @@ In a cloud session the repos are usually not all present yet. Clone the ones you
 
 This skill is procedural but the procedure parallelises well. Two principles:
 
-1. **Fan out aggressively.** When step N has independent sub-tasks (per-repo queries, per-issue body fetches, per-URL stability tests), put them in a single message with multiple Bash calls. Do not write `for repo in ...; do` shell loops when N parallel calls would surface failures sooner and be readable inline. For a large backlog (roughly >8-10 issues each needing an independent stability test or full classification), consider farming per-issue work out via the Workflow/Task tooling; for the typical small run, inline parallel Bash stays correct and is simpler.
+1. **Run independent sub-tasks in parallel.** Per-repo queries, per-issue body fetches and per-URL stability tests go as parallel Bash calls in one message rather than a shell loop, so each failure shows up on its own call. For a large backlog (roughly >8-10 issues each needing an independent stability test or full classification), consider farming per-issue work out via the Workflow/Task tooling; for the typical small run, inline parallel Bash stays correct and is simpler.
 2. **Decide, then act.** Each issue gets classified once via the rubric below, then acted on. Do not ask the user mid-flow whether to close obviously-fast-path items. If you have to ask, batch the question to the end.
 
 End-of-run summary should be one paragraph: how many issues closed in each bucket, plus any open follow-ups (PRs created, memory updates). A zero-issue run is a legitimate outcome, not a failure; see "Clean run" below for what to report instead.
@@ -48,13 +48,16 @@ End-of-run summary should be one paragraph: how many issues closed in each bucke
 | skills-internet | `developer-overheid-nl/skills-internet` | `${WORKSPACE}/skills-internet` | content repo |
 | skills-standaarden | `developer-overheid-nl/skills-standaarden` | `${WORKSPACE}/skills-standaarden` | content repo |
 | skills-marketplace | `developer-overheid-nl/skills-marketplace` | `${WORKSPACE}/skills-marketplace` | marketplace |
+| zad-actions | `RijksICTGilde/zad-actions` | `${WORKSPACE}/zad-actions` | plugin in another org, tag-based releases |
 | skills-developer-overheid-nl | `developer-overheid-nl/skills-developer-overheid-nl` | `${WORKSPACE}/skills-developer-overheid-nl` | no automation yet |
 
 The **three content repos** (geo/internet/standaarden) each run two daily monitoring workflows: `monitoring-content.yml` (content hash drift) and `monitoring-links.yml` (broken links). Both are release-please repos. The **marketplace** repo has its own `check-versions.yml` (plugin-version compare) plus `validate.yml` (CI gate); no release-please. **skills-developer-overheid-nl** (formerly `developer-overheid-nl-agent-skills`) has a GitHub remote but no monitoring workflows, no release-please config, and no tags, so it has nothing to triage today; it stays out of every sweep until it adopts automation.
 
+**zad-actions** lives in `RijksICTGilde`, not in `developer-overheid-nl`, and is a plugin in the marketplace. It has no monitoring workflows and no `monitoring` label, so it never files issues and stays out of the issue triage. It does not use release-please either: a release is a hand-pushed `v*.*.*` tag, and `release.yml` refuses a tag whose version does not match `.plugin/plugin.json` or whose CHANGELOG section is missing. So it belongs in the release sweep (Step 5a) and in the marketplace comparison (Step 6), not in Step 1's issue queries.
+
 `skills-nora` is deliberately absent: it is local-only with no GitHub remote, so its workflows can never file issues. Skip it.
 
-So the cardinalities below resolve to: **pull** = the 4 repos with a remote you care about (3 content + marketplace); **monitoring-issue queries** = the 3 content repos; **release-PR sweep** = the 3 content repos only (the only release-please repos).
+So the cardinalities below resolve to: **pull** = the 5 repos with a remote you care about (3 content + marketplace + zad-actions); **monitoring-issue queries** = the 3 content repos; **release-PR sweep** = the 3 content repos only (the only release-please repos), with zad-actions handled separately in Step 5a; **marketplace version comparison** = every plugin in `marketplace.json`, which includes zad-actions and the plugins from other orgs.
 
 ## Fast-path: known recurring patterns
 
@@ -91,7 +94,7 @@ When in doubt for an exception, fall through to the full Step 2 rubric instead o
 
 Run these as parallel Bash calls in a single message:
 
-- `git -C ${WORKSPACE}/skills-geo pull --ff-only` (and the same for skills-internet, skills-standaarden, skills-marketplace), four parallel calls.
+- `git -C ${WORKSPACE}/skills-geo pull --ff-only` (and the same for skills-internet, skills-standaarden, skills-marketplace, zad-actions), five parallel calls. Clone zad-actions from `RijksICTGilde/zad-actions` if it is not there yet.
 - `gh issue list --repo developer-overheid-nl/skills-geo --label monitoring --state open --json number,title,createdAt,labels --limit 100` for each of the three content repos, three parallel calls.
 - `gh pr list --repo developer-overheid-nl/REPO --label "autorelease: pending" --state open --json number,title,createdAt,mergeable --limit 10` for the three content repos (geo/internet/standaarden, the only release-please repos), three parallel calls. Marketplace has no release-please (it is handled in Step 6); skills-developer-overheid-nl has no release automation, so neither is queried here.
 - Marketplace status: latest `check-versions.yml` runs, open `automated-bump` PRs, recent failed runs, three parallel calls.
@@ -185,6 +188,30 @@ For each open `autorelease: pending` PR:
 4. **Merge** with `gh pr merge <nr> --repo developer-overheid-nl/<repo> --squash`. If branch protection blocks, add `--admin`.
 5. **After merging plugin repos**: check if `marketplace.json` versions need bumping. If yes, edit `marketplace.json`, run `uv run python .github/scripts/generate_marketplace.py`, open a PR.
 
+## Step 5a: zad-actions releases
+
+zad-actions does not use release-please, so there is no release PR to find. A release is a hand-pushed tag, and the repo publishes two things from it: the composite actions (`uses: RijksICTGilde/zad-actions/deploy@v4`) and the plugin the marketplace installs. **They share one version line**, so the plugin version is the tag version.
+
+Check whether anything is waiting:
+
+```bash
+cd ${WORKSPACE}/zad-actions
+git describe --tags --abbrev=0          # last released tag
+git log --oneline $(git describe --tags --abbrev=0)..HEAD   # unreleased commits
+awk '/^## \[Unreleased\]/{f=1;next} f&&/^## \[/{exit} f' CHANGELOG.md
+```
+
+Commits but an empty `[Unreleased]` means someone merged without a CHANGELOG entry; `release.yml` does not check that, only that the section for the version being tagged exists and is non-empty. Add the entry before releasing, or the release notes will not mention the change.
+
+To release:
+
+1. Move `[Unreleased]` to `[<versie>] - <datum>` and leave a fresh empty `[Unreleased]` above it. Everything that goes out in this release must sit under that version heading, because `release.yml` extracts exactly what lies between it and the next heading
+2. `python3 scripts/bump_version.py <versie>`, which sets `.plugin/plugin.json` and regenerates the two platform manifests
+3. Commit both through a PR; a direct push to `main` is refused by the required `validate` check
+4. After merging, `git tag -a v<versie> -m "v<versie>" && git push origin v<versie>`
+
+`release.yml` refuses a tag whose version does not match `.plugin/plugin.json`, and names `bump_version.py` in the error. The check runs before the release is created, so the rollback step takes the tag back down. A `chore:` commit does not warrant a release on its own; a user-visible change does, and then it should be a `fix:` or `feat:` so the changelog shows it.
+
 ## Step 6: marketplace status
 
 Three signals to check (in parallel):
@@ -193,7 +220,16 @@ Three signals to check (in parallel):
 - Open `automated-bump` PRs. Before merging one, wait for the `validate` check ("Valideer marketplace", which runs `generate_marketplace.py --check` plus repo-reachability and platform-file checks) to go green; it fires on the `pull_request` event automatically.
 - Recent failed runs (often upstream repos with missing/moved `plugin.json`; investigate one-off vs. systemic)
 
-Compare `marketplace.json` versions to upstream tags: `gh api repos/developer-overheid-nl/<repo>/tags --jq '.[0].name'` for each plugin repo, in parallel. If drift exists and there's no automated-bump PR, the workflow may have failed silently. Check the run logs.
+Compare `marketplace.json` against upstream. The marketplace holds plugins from several orgs, not only `developer-overheid-nl`, so read the repo from the entry itself rather than assuming the owner. The cheapest check is the repo's own script, which compares version **and** description for every plugin and prints one line each:
+
+```bash
+cd ${WORKSPACE}/skills-marketplace
+uv run --with requests python .github/scripts/check_versions.py
+```
+
+**Mind which version each plugin tracks.** `check_versions.py` reads `.plugin/plugin.json` (falling back to `.claude-plugin/`), not the repo's git tag. For zad-actions those are the same number by design; for a plugin whose tag versions something else, the repo tag can be far ahead of the plugin version without that being drift. Confirm against the manifest before concluding anything.
+
+If there is real drift and no `automated-bump` PR, the workflow may have failed silently. Check the run logs.
 
 ## Step 7: write back to memory
 
