@@ -136,3 +136,9 @@ Let op bij de volgende ronde: `develop` is sinds de merge-van-main `behind_by: 0
 curl -sL https://gitdocumentatie.logius.nl/publicatie/api/adr/ | grep -oE 'canonical" href="\./[^"]+"'
 curl -sL https://gitdocumentatie.logius.nl/publicatie/api/adr/<versie>/ | grep -c 'always-return-objects'
 ```
+
+### geo-inspire: centrale INSPIRE-validator afgeschaft — DONE 2026-10-07
+
+De Europese Commissie heeft de centrale instantie van de INSPIRE Reference Validator per 2026-04-01 uitgezet. De skill verwees er zes maanden later nog naar als werkende dienst: de link gaf 200 (maar redirect naar een algemene EU-hulppagina) en de drie `curl`-voorbeelden tegen `/validator/v2/` gaven een redirect-loop. Bijgewerkt in PR skills-geo#355 (release v0.4.4): let-op-blok met de EC-aankondiging, API-voorbeelden naar een lokale instantie (`localhost:8080`), plus verwijzingen naar INSPIRE-Validator-Container en de ETF-documentatie.
+
+**Les die breder geldt:** een HTTP 200 zegt niets over of een dienst nog bestaat. Bij een URL die een *dienst* is (API, validator, portaal) in plaats van een document, controleer de `url_effective` na redirects en test minstens één endpoint dat de skill daadwerkelijk documenteert. De link-monitoring en lychee vangen dit type verval niet.
