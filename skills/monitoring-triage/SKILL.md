@@ -224,8 +224,13 @@ Compare `marketplace.json` against upstream. The marketplace holds plugins from 
 
 ```bash
 cd ${WORKSPACE}/skills-marketplace
+git checkout main && git pull --ff-only   # the script compares against the LOCAL marketplace.json
 uv run --with requests python .github/scripts/check_versions.py
 ```
+
+**This script is not read-only.** When it finds drift and no `automated-bump` PR is open, it sets the repo-local git identity to `github-actions[bot]`, commits on a new `automated/bump-*` branch, pushes, opens a PR and leaves you on that branch. Run it locally only while a bump PR is open (it then just prints and stops), or on a freshly pulled `main`. On a stale checkout it opens a duplicate PR for bumps that are already merged (happened 2026-10-29, #112). To have CI create the bump PR, prefer `gh workflow run check-versions.yml --repo developer-overheid-nl/skills-marketplace` and read the run log. If it did run locally: close the PR with `--delete-branch`, `git checkout main`, and `git config --local --unset user.name && git config --local --unset user.email`.
+
+**A stale bump PR blocks every new bump.** The script refuses to open a second PR while one is open, so an old one (for example a two-week-old PR for v0.8.100 while upstream is at v0.13.1) silently freezes the marketplace. Close it with `--delete-branch` and dispatch `check-versions.yml` for one combined PR. Bump PRs are created by `GITHUB_TOKEN`, so their `Valideer marketplace` run sits on `action_required`: approve it with `gh api -X POST repos/developer-overheid-nl/skills-marketplace/actions/runs/<id>/approve` (take the id from `gh run list --branch <bump-branch>`), wait until every check is green, including the second `validate` the script dispatches itself, then `gh pr merge <nr> --squash --admin --delete-branch`.
 
 **Mind which version each plugin tracks.** `check_versions.py` reads `.plugin/plugin.json` (falling back to `.claude-plugin/`), not the repo's git tag. For zad-actions those are the same number by design; for a plugin whose tag versions something else, the repo tag can be far ahead of the plugin version without that being drift. Confirm against the manifest before concluding anything.
 
