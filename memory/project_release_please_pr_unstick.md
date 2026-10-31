@@ -22,3 +22,6 @@ Release-please PRs in skills-geo, skills-internet en skills-standaarden komen va
 8. Daarna: handmatig `gh workflow run check-versions.yml --repo developer-overheid-nl/skills-marketplace` om de marketplace-bump PR te triggeren
 
 Bij admin-merge van NCSC URL fix (#153, 14 april 2026): werkte zonder regenerate omdat het geen versie-bump PR was.
+
+**Skill-wijzigingen nooit als `docs:` mergen.** In de release-please-config van de content-repos staat `docs` op `hidden: true`, dus een `docs(...)`-PR levert geen release PR op en bereikt de marketplace nooit. Skill-content is de lading van de plugin: gebruik `fix:` (of `feat:`). Gebeurde 2026-10-31 met skills-geo #376 (ogc-checker v1.4.0). Herstel na de merge zonder nieuwe commit: zet onderaan de body van de gemergde PR
+`BEGIN_COMMIT_OVERRIDE` / `fix(scope): ...` / `END_COMMIT_OVERRIDE` (drie regels) en `gh run rerun` de laatste release-please-run (de workflow heeft geen `workflow_dispatch`). Dat gaf direct release PR #377 (0.4.6).
