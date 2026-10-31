@@ -280,5 +280,6 @@ A run with zero open monitoring issues, zero `autorelease: pending` PRs, and a h
 - GitHub's "Sluit #N" (Dutch close keyword) does NOT auto-close issues. Use `gh issue close` explicitly.
 - When running Python scripts in these repos, always use `uv run python`. They use uv for dependency management.
 - PRs MUST NOT have co-author lines.
+- A PR that changes skill content uses `fix:` or `feat:`, never `docs:`. The content repos hide `docs` in release-please, so a `docs:` PR never produces a release and never reaches the marketplace. Already merged as `docs:`? Add a `BEGIN_COMMIT_OVERRIDE` block to the merged PR body and rerun the last release-please run.
 - All repos have platform-specific generated files (`.claude-plugin/`, `.cursor-plugin/`) that must be regenerated after version changes; the `validate` CI check fails if these files are out of sync.
 - `audit-visibility.yml` (skills-internet and skills-standaarden only, not geo/marketplace) is latent infrastructure: a PR-triggered, non-blocking check that reads `<skilldir>/audit.md` and applies an `audit-flagged` label + sticky comment. It is currently dormant (no `audit.md` is committed and the `audit-flagged` label does not exist), so it emits nothing today. If audit-tooling starts committing `audit.md`, this becomes a PR signal the triage should handle.
