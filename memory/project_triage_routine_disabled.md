@@ -1,15 +1,14 @@
 ---
 name: triage-cloud-routine-disabled
-description: The daily monitoring-triage cloud routine is disabled since 2026-07-19; triage runs only manually now
-metadata: 
-  node_type: memory
+description: Daily monitoring-triage runs locally via launchd since 2026-11-11; the cloud routine stays disabled
+metadata:
   type: project
-  originSessionId: ee7d2a7b-a7c2-482c-a94e-b97eb2ffdf8b
-  modified: 2026-07-19T06:25:59.439Z
 ---
 
-The cloud routine "Daily monitoring-triage (developer-overheid-nl)" (`trig_01BWxRUTCkLMKm1TGSeEtJUo`, cron `0 10 * * *` UTC = 12:00 NL, environment skills-monitoring-triage) was **disabled on 2026-07-19** at Anne's request. It is disabled, not deleted.
+Since **2026-11-11** the daily triage runs on Anne's laptop via launchd: `com.anneschuth.monitoring-triage` starts `scripts/monitoring-triage-daily.sh` in the private workspace repo (`anneschuth/overheid-skills`) every hour and at login. The script runs `claude -p "/monitoring-triage"` at most once per day, not before 10:00 local, skips when GitHub is unreachable, logs to `~/.local/share/monitoring-triage/triage.log` and shows a macOS notification with the last summary line. It uses Anne's own `gh` login and Claude subscription, so no extra secret is needed; it only runs when the laptop is awake.
 
-**Why:** Anne asked to turn off the daily 12:00 check.
+The cloud routine "Daily monitoring-triage (developer-overheid-nl)" (`trig_01BWxRUTCkLMKm1TGSeEtJUo`) was **disabled on 2026-07-19** and stays disabled. It needs a PAT in `GH_TOKEN` in its environment for writes (the GitHub connector is read-only), lacks zad-actions in its sources and pins an old model. Deleting it is only possible via https://claude.ai/code/routines.
 
-**How to apply:** Monitoring issues now accumulate until Anne runs `/monitoring-triage` manually, so expect larger backlogs per run (see [[Recurring monitoring false positive sources]]). Re-enable via `RemoteTrigger` update with `{"enabled": true}` on that trigger id; deletion only via https://claude.ai/code/routines.
+**Why:** Anne wanted a daily run without a token stored in a cloud environment, and session crons (CronCreate) expire after 7 days.
+
+**How to apply:** If a triage run finds an unexpectedly large backlog, check `triage.log` and `launchctl print gui/$(id -u)/com.anneschuth.monitoring-triage` first (laptop asleep for days, auth expired). To force a rerun today, delete `~/.local/share/monitoring-triage/last-success`. A run in a cloud session ignores this file. See [[Recurring monitoring false positive sources]].

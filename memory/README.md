@@ -10,5 +10,5 @@ These files are the operational knowledge the `monitoring-triage` skill relies o
 | `project_pending_skill_updates.md` | Tracked upstream changes that may warrant skill updates, including which ones are already done. |
 | `project_nora_status.md` | Why skills-nora is skipped in triage (local-only, no GitHub remote). |
 | `project_forum_beslisboom_dekking.md` | Forum beslisboom JSON:API, the 27/55 coverage analysis, and which standards are deliberately out of scope. |
-| `project_triage_routine_disabled.md` | Why the daily cloud routine is off and what that means for backlog size. |
+| `project_triage_routine_disabled.md` | Where the daily run lives now (local launchd job) and why the cloud routine stays off. |
 | `project_local_changes_pattern.md` | Repos often carry uncommitted WIP; stash before pulling. |
